@@ -73,6 +73,7 @@ class NotebookArchiveApplication(Application):
 
 		Results:
 			(Dictionary) Dictionary of note titles with pages
+		"""
 
 		searchFilter = NoteStore.NoteFilter()
 		searchFilter.words = words
