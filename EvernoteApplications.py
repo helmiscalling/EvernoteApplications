@@ -63,7 +63,7 @@ class NotebookArchiveApplication(Application):
 		self.indexTagGuid = indexTagGuid
 		self.pageTagGuid = pageTagGuid
 
-	def findIndexes(self, words):
+	def findNotes(self, words):
 		"""
 		Find indexes that match a search, and return a dictionary
 		of the index titles and pages
@@ -89,6 +89,15 @@ class NotebookArchiveApplication(Application):
 		for note in foundNotes.notes:
 			firstPosition = 12
 			lastPosition = note.title.find(')')
-			results[note.title] = note.title[firstPosition:lastPosition]
+			pages = []
+			pageReference = note.title[firstPosition:lastPosition]
+			for reference in pageReference.split(','):
+				if len(reference) == 4:
+					pages.append(reference)
+				else:
+					for i in range(int(reference[:4]), int(reference[-4:]) + 1):
+						pages.append(str(i).zfill(4))
+
+			results[note.title] = pages
 
 		return results
