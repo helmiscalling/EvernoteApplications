@@ -93,11 +93,36 @@ class NotebookArchiveApplication(Application):
 			pageReference = note.title[firstPosition:lastPosition]
 			for reference in pageReference.split(','):
 				if len(reference) == 4:
-					pages.append(reference)
+					pages.append(self.getPage(reference))
 				else:
 					for i in range(int(reference[:4]), int(reference[-4:]) + 1):
-						pages.append(str(i).zfill(4))
+						pages.append(self.getPage(str(i).zfill(4)))
 
 			results[note.title] = pages
 
 		return results
+
+	def getPage(self, pageNumber):
+		"""
+		Get specific page resources.
+
+		Arguments:
+			pageNumber (String) The four digit page number
+
+		Results:
+			(String) Binary representation of the image
+		"""
+
+		searchFilter = NoteStore.NoteFilter()
+		searchFilter.words = pageNumber
+		searchFilter.notebookGuid = self.notebookGuid
+		searchFilter.tagGuids = [self.pageTagGuid]
+
+		searchSpec = NoteStore.NotesMetadataResultSpec()
+		searchSpec.includeTitle = True
+
+		for note in self.library.noteStore.findNotesMetadata(self.library.auth_token, searchFilter, 0, 100, searchSpec).notes:
+			if note.title[:5] == pageNumber + ' ':
+				resources = self.library.noteStore.getNote(self.library.auth_token, note.guid, False, False, False, False).resources
+				return self.library.noteStore.getResourceData(self.library.auth_token, resources[0].guid)
+
